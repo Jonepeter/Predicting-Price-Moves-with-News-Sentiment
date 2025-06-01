@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import re
 import nltk
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import word_tokenize,wordpunct_tokenize
 from datetime import datetime
+
 
 # # Download NLTK resources
 # nltk.download('punkt')
@@ -147,7 +148,7 @@ class MovieNewsSentiment:
             for line in self.data['headline'].tolist():
                 # Lowercase, remove punctuation/numbers
                 text = re.sub(r'[^a-zA-Z\s]', '', line.lower())
-                tokens = word_tokenize(text)
+                tokens = wordpunct_tokenize(text)
                 filtered = [w for w in tokens if w not in stop_words and len(w) > 2]
                 self.cleaned_headlines.append(" ".join(filtered))
 
@@ -177,7 +178,7 @@ class MovieNewsSentiment:
         except Exception as e:
             print(f"Error extracting keywords: {e}")
 
-    def perform_topic_modeling(self, num_topics=3, num_words=5):
+    def perform_topic_modeling(self, num_topics=30, num_words=5):
         """
         Perform topic modeling using Latent Dirichlet Allocation (LDA).
         
@@ -189,7 +190,7 @@ class MovieNewsSentiment:
             tf_vectorizer = TfidfVectorizer(max_df=0.9, min_df=1, stop_words='english')
             tf = tf_vectorizer.fit_transform(self.cleaned_headlines)
 
-            lda = LatentDirichletAllocation(n_components=num_topics, random_state=42)
+            lda = LatentDirichletAllocation(n_components=num_topics, max_iter=5, random_state=42)
             lda.fit(tf)
 
             print(f"\nTop {num_topics} Topics:")
@@ -270,5 +271,3 @@ class MovieNewsSentiment:
             print(domains.value_counts()) 
         except Exception as e:
             print(f"Error:  {e}")
-
-    

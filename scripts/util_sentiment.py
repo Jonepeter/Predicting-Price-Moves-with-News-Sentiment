@@ -62,6 +62,20 @@ class MovieNewsSentiment:
             self.data['headline_length'] = self.data['headline'].astype(str).str.len()
             stats = self.data['headline_length'].describe()
             print("\n Headline Length Statistics:\n", stats.astype('int64'))
+            
+            # Calculate bins for histogram
+            max_length = int(self.data['headline_length'].max())
+            bins = range(0, max_length + 20, 20)  # 20-character bins
+
+            # Create histogram
+            plt.figure(figsize=(10, 6))
+            plt.hist(self.data['headline_length'], bins=bins, edgecolor='black', alpha=0.7)
+            plt.title('Distribution of Headline Lengths in Financial News')
+            plt.xlabel('Headline Length (Characters)')
+            plt.ylabel('Frequency')
+            plt.grid(True, alpha=0.3)
+            plt.tight_layout()
+            plt.show()
         except KeyError:
             print("Error: 'headline' column not found.")
         except Exception as e:

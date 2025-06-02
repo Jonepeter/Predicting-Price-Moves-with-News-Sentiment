@@ -12,6 +12,7 @@ import logging as logger
 def fetch_data():
     """
     Fetch stock Yahoo Finance data from local CSV files in the yfinance folder.
+    
     Returns:
         bool: True if data is successfully loaded and validated, False otherwise.
     """
@@ -42,104 +43,88 @@ def fetch_data():
 # Calculate technical indicators using TA-Lib
 def calculate_technical_indicators(data):
     print("Calculating technical indicators...")
-    close = np.array(data['Close'], dtype=float)
+    try:
+        close = np.array(data['Close'], dtype=float)
     
-    # Simple Moving Average (SMA)
-    data['SMA20'] = ta.SMA(close, timeperiod=20)
+        # Simple Moving Average (SMA)
+        data['SMA20'] = ta.SMA(close, timeperiod=20)
+        
+        # Relative Strength Index (RSI)
+        data['RSI'] = ta.RSI(close, timeperiod=14)
+        
+        # MACD
+        data['MACD'], data['MACD_Signal'], _ = ta.MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
+        
+        return data
+    except Exception as e:
+        print(f"Error: {e}")
     
-    # Relative Strength Index (RSI)
-    data['RSI'] = ta.RSI(close, timeperiod=14)
-    
-    # MACD
-    data['MACD'], data['MACD_Signal'], _ = ta.MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
-    
-    return data
 
 # Calculate financial metrics using PyNance
 def calculate_financial_metrics(data):
     print("Calculating financial metrics...")
-    # Daily returns
-    daily_returns = pn.data.returns(data['Close'])
+    try:
+        # Daily returns
+        daily_returns = pn.data.returns(data['Close'])
+        
+        # Annualized volatility
+        volatility = pn.volatility.annualized(daily_returns, periods=252)
+        
+        # Sharpe Ratio (assuming risk-free rate of 0.02)
+        sharpe_ratio = pn.sharpe_ratio(daily_returns, periods=252, rf_rate=0.02)
+        
+        # Maximum Drawdown
+        max_drawdown = pn.max_drawdown(data['Close'])
+        
+        metrics = {
+            'Annualized Volatility': volatility,
+            'Sharpe Ratio': sharpe_ratio,
+            'Maximum Drawdown': max_drawdown
+        }
+        return metrics
+    except Exception as e:
+        print(f"Error: {e}")
     
-    # Annualized volatility
-    volatility = pn.volatility.annualized(daily_returns, periods=252)
-    
-    # Sharpe Ratio (assuming risk-free rate of 0.02)
-    sharpe_ratio = pn.sharpe_ratio(daily_returns, periods=252, rf_rate=0.02)
-    
-    # Maximum Drawdown
-    max_drawdown = pn.max_drawdown(data['Close'])
-    
-    metrics = {
-        'Annualized Volatility': volatility,
-        'Sharpe Ratio': sharpe_ratio,
-        'Maximum Drawdown': max_drawdown
-    }
-    return metrics
 
 # Visualize the data
 def visualize_data(data, ticker='AAPL'):
     print("Generating visualizations...")
-    plt.figure(figsize=(12, 8))
+    try:
+        plt.figure(figsize=(12, 8))
     
-    # Plot Close price and SMA
-    plt.subplot(3, 1, 1)
-    plt.plot(data['Date'], data['Close'], label='Close Price', color='blue')
-    plt.plot(data['Date'], data['SMA20'], label='20-day SMA', color='orange')
-    plt.title(f'{ticker} Stock Price and 20-day SMA')
-    plt.xlabel('Date')
-    plt.ylabel('Price (USD)')
-    plt.legend()
-    plt.grid(True)
-    
-    # Plot RSI
-    plt.subplot(3, 1, 2)
-    plt.plot(data['Date'], data['RSI'], label='RSI (14)', color='green')
-    plt.axhline(y=70, color='r', linestyle='--', label='Overbought (70)')
-    plt.axhline(y=30, color='b', linestyle='--', label='Oversold (30)')
-    plt.title('Relative Strength Index (RSI)')
-    plt.xlabel('Date')
-    plt.ylabel('RSI')
-    plt.legend()
-    plt.grid(True)
-    
-    # Plot MACD
-    plt.subplot(3, 1, 3)
-    plt.plot(data['Date'], data['MACD'], label='MACD', color='purple')
-    plt.plot(data['Date'], data['MACD_Signal'], label='Signal Line', color='red')
-    plt.title('MACD')
-    plt.xlabel('Date')
-    plt.ylabel('MACD')
-    plt.legend()
-    plt.grid(True)
-    
-    plt.tight_layout()
-    plt.savefig(f'{ticker}_analysis.png')
-    print(f"Visualization saved as {ticker}_analysis.png")
-
-# Main execution
-def main():
-    # Load data
-    ticker = 'AAPL'  # Example stock ticker from FNSPID
-    data = load_stock_data(ticker)
-    
-    # Calculate technical indicators
-    data = calculate_technical_indicators(data)
-    
-    # Calculate financial metrics
-    metrics = calculate_financial_metrics(data)
-    
-    # Print financial metrics
-    print("\nFinancial Metrics:")
-    for key, value in metrics.items():
-        print(f"{key}: {value:.4f}")
-    
-    # Visualize data
-    visualize_data(data, ticker)
-    
-    # Save data with indicators to CSV
-    data.to_csv(f'{ticker}_analysis.csv', index=False)
-    print(f"\nAnalysis data saved to {ticker}_analysis.csv")
-
-if __name__ == "__main__":
-    main()
+        # Plot Close price and SMA
+        plt.subplot(3, 1, 1)
+        plt.plot(data['Date'], data['Close'], label='Close Price', color='blue')
+        plt.plot(data['Date'], data['SMA20'], label='20-day SMA', color='orange')
+        plt.title(f'{ticker} Stock Price and 20-day SMA')
+        plt.xlabel('Date')
+        plt.ylabel('Price (USD)')
+        plt.legend()
+        plt.grid(True)
+        
+        # Plot RSI
+        plt.subplot(3, 1, 2)
+        plt.plot(data['Date'], data['RSI'], label='RSI (14)', color='green')
+        plt.axhline(y=70, color='r', linestyle='--', label='Overbought (70)')
+        plt.axhline(y=30, color='b', linestyle='--', label='Oversold (30)')
+        plt.title('Relative Strength Index (RSI)')
+        plt.xlabel('Date')
+        plt.ylabel('RSI')
+        plt.legend()
+        plt.grid(True)
+        
+        # Plot MACD
+        plt.subplot(3, 1, 3)
+        plt.plot(data['Date'], data['MACD'], label='MACD', color='purple')
+        plt.plot(data['Date'], data['MACD_Signal'], label='Signal Line', color='red')
+        plt.title('MACD')
+        plt.xlabel('Date')
+        plt.ylabel('MACD')
+        plt.legend()
+        plt.grid(True)
+        
+        plt.tight_layout()
+        plt.show()
+        
+    except Exception as e:
+        print(f"Error: {e}")

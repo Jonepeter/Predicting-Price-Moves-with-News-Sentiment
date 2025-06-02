@@ -276,12 +276,34 @@ class MovieNewsSentiment:
     
     def extract_email_domain(self):
         """
-            Extract email domain from the publishers detail and display number of article in each domain
-        """        
+        Extract email domain from the publishers detail and display number of articles in each domain.
+        Excludes None values and creates a bar plot to visualize the distribution.
+        """
         try:
-            email_domain = self.data['publisher'].apply(lambda x : x if re.match(r'[^@]+@[^@]+\.[^@]+',x) else None)
-            domains = email_domain.apply(lambda x:str(x).split('@')[-1])
-            # domain_count = domains.value_counts()
-            print(domains.value_counts()) 
+            # Extract email domains
+            email_domain = self.data['publisher'].apply(lambda x: x if re.match(r'[^@]+@[^@]+\.[^@]+', x) else None)
+            domains = email_domain.apply(lambda x: str(x).split('@')[-1] if pd.notnull(x) else None)
+            
+            # Exclude None values
+            domains = domains.dropna()
+            if domains.empty:
+                print("No valid email domains found in the publisher column.")
+                return
+            
+            domain_counts = domains.value_counts()
+            print("\nArticle Counts by Email Domain (Excluding None):\n", domain_counts)
+
+            # Create seaborn bar plot
+            plt.figure(figsize=(10, 6))
+            sns.set_theme(style="whitegrid")  # Clean theme for light/dark backgrounds
+            sns.countplot(y=domains, order=domain_counts.index, palette="Blues_d")
+            plt.title('Number of Articles by Publisher Email Domain', fontsize=14)
+            plt.xlabel('Number of Articles', fontsize=12)
+            plt.ylabel('Email Domain', fontsize=12)
+            plt.xticks(fontsize=10)
+            plt.yticks(fontsize=10)
+            plt.tight_layout()
+            plt.show()
+
         except Exception as e:
-            print(f"Error:  {e}")
+            print(f"Error: {e}")

@@ -52,7 +52,7 @@ class MovieNewsSentiment:
 
     def analyze_headline_lengths(self):
         """
-        Analyze and print statistics of headline text lengths.
+            Analyze and print statistics of headline text lengths.
         """
         if self.data is None:
             print("Data not loaded. Please call load_data() first.")
@@ -69,7 +69,7 @@ class MovieNewsSentiment:
 
     def count_articles_by_publisher(self):
         """
-        Count and display the number of articles by each publisher.
+            Count and display the number of articles by each publisher.
         """
         if self.data is None:
             print("Data not loaded. Please call load_data() first.")
@@ -241,14 +241,15 @@ class MovieNewsSentiment:
     
     # instance method used to find top publishers 
     def top_publishers(self, top = 10):
-        """_summary_
-
-        Args:
-            top (int, optional): Enter number of top publishers you want. 
-                                  Defaults to 10.
-        
-        Return:
-                top publishers dataframe
+        """
+            Objective: Find top Publishers 
+            
+            Args:
+                top (int, optional): Enter number of top publishers you want. 
+                                    Defaults to 10.
+            
+            Return:
+                    top publishers dataframe
                 
         """     
         try:
@@ -261,8 +262,7 @@ class MovieNewsSentiment:
     
     def extract_email_domain(self):
         """
-            Extract email domain from the publishers detail and
-            display number of article in each domain
+            Extract email domain from the publishers detail and display number of article in each domain
         """        
         try:
             email_domain = self.data['publisher'].apply(lambda x : x if re.match(r'[^@]+@[^@]+\.[^@]+',x) else None)

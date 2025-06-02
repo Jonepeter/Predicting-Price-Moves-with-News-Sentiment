@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class StockPriceAnalyzer:
     """
-    A class for performing quantitative analysis on stock price using TA-Lib and visualization.
+        A class for performing quantitative analysis on stock price using TA-Lib and visualization.
     """
     
     def __init__(self):
@@ -29,7 +29,7 @@ class StockPriceAnalyzer:
             end_date (str): End date in 'YYYY-MM-DD' format (default: today)
         """
         self.data = None
-        self.indicators = {}
+        self.data = {}
         
     def fetch_data(self):
         """
@@ -87,11 +87,10 @@ class StockPriceAnalyzer:
         
     def calculate_indicators(self):
         """
-        Calculate various technical ind
-        icators using TA-Lib.
+        Calculate various technical indicators using TA-Lib.
         """
         if self.data is None:
-            logger.error("No data available to calculate indicators")
+            logger.error("No data available to calculate data")
             return False
             
         try:
@@ -103,47 +102,47 @@ class StockPriceAnalyzer:
             volume = self.data['Volume'].values
             
             # Calculate moving averages
-            self.indicators['SMA_20'] = talib.SMA(close_prices, timeperiod=20)
-            self.indicators['SMA_50'] = talib.SMA(close_prices, timeperiod=50)
-            self.indicators['SMA_200'] = talib.SMA(close_prices, timeperiod=200)
+            self.data['SMA_20'] = talib.SMA(close_prices, timeperiod=20)
+            self.data['SMA_50'] = talib.SMA(close_prices, timeperiod=50)
+            self.data['SMA_200'] = talib.SMA(close_prices, timeperiod=200)
             
             # Calculate RSI
-            self.indicators['RSI_14'] = talib.RSI(close_prices, timeperiod=14)
+            self.data['RSI_14'] = talib.RSI(close_prices, timeperiod=14)
             
             # Calculate MACD
             macd, macdsignal, macdhist = talib.MACD(close_prices)
-            self.indicators['MACD'] = macd
-            self.indicators['MACD_Signal'] = macdsignal
-            self.indicators['MACD_Hist'] = macdhist
+            self.data['MACD'] = macd
+            self.data['MACD_Signal'] = macdsignal
+            self.data['MACD_Hist'] = macdhist
             
             # Calculate Bollinger Bands
             upper, middle, lower = talib.BBANDS(close_prices)
-            self.indicators['BB_Upper'] = upper
-            self.indicators['BB_Middle'] = middle
-            self.indicators['BB_Lower'] = lower
+            self.data['BB_Upper'] = upper
+            self.data['BB_Middle'] = middle
+            self.data['BB_Lower'] = lower
             
             # Calculate Stochastic Oscillator
             slowk, slowd = talib.STOCH(high_prices, low_prices, close_prices)
-            self.indicators['Stoch_Slowk'] = slowk
-            self.indicators['Stoch_Slowd'] = slowd
+            self.data['Stoch_Slowk'] = slowk
+            self.data['Stoch_Slowd'] = slowd
             
             logger.info("Successfully calculated technical indicators")
-            return pd.DataFrame(self.indicators)
+            return self.data
             
         except Exception as e:
             logger.error(f"Error calculating indicators: {str(e)}")
             return False
     
-    def visualize_data(self, ticker='STOCK'):
+    def visualize_data(self, ticker=None):
         """
-        Create visualizations of the stock data and indicators.
+        Create visualizations of the stock data and data.
         
         Args:
-            ticker (str): Stock ticker symbol for title (default: 'STOCK')
+            ticker (str): Stock ticker symbol for title (default: 'None')
+        Return: 
+            bool (True): if the plot is successfully completed 
         """
-        if self.data is None or not self.indicators:
-            logger.error("No data or indicators available for visualization")
-            return False
+        
             
         try:
             
@@ -151,28 +150,28 @@ class StockPriceAnalyzer:
             
             # Price and Moving Averages
             axes[0].plot(self.data.index, self.data['Close'], label='Close Price', color='blue', alpha=0.5)
-            axes[0].plot(self.data.index, self.indicators['SMA_20'], label='20-day SMA', color='orange')
-            axes[0].plot(self.data.index, self.indicators['SMA_50'], label='50-day SMA', color='green')
-            axes[0].plot(self.data.index, self.indicators['SMA_200'], label='200-day SMA', color='red')
+            axes[0].plot(self.data.index, self.data['SMA_20'], label='20-day SMA', color='orange')
+            axes[0].plot(self.data.index, self.data['SMA_50'], label='50-day SMA', color='green')
+            axes[0].plot(self.data.index, self.data['SMA_200'], label='200-day SMA', color='red')
             
             # Plot Bollinger Bands
-            axes[0].plot(self.data.index, self.indicators['BB_Upper'], label='BB Upper', color='gray', linestyle='--', alpha=0.7)
-            axes[0].plot(self.data.index, self.indicators['BB_Middle'], label='BB Middle', color='gray', alpha=0.7)
-            axes[0].plot(self.data.index, self.indicators['BB_Lower'], label='BB Lower', color='gray', linestyle='--', alpha=0.7)
+            axes[0].plot(self.data.index, self.data['BB_Upper'], label='BB Upper', color='gray', linestyle='--', alpha=0.7)
+            axes[0].plot(self.data.index, self.data['BB_Middle'], label='BB Middle', color='gray', alpha=0.7)
+            axes[0].plot(self.data.index, self.data['BB_Lower'], label='BB Lower', color='gray', linestyle='--', alpha=0.7)
             
-            axes[0].set_title(f'{ticker} Price and Indicators')
+            axes[0].set_title(f'{ticker} Price and data')
             axes[0].legend()
             axes[0].grid(True)
             
-            # Volume and OBV
-            axes[1].bar(self.data.index, self.data['Volume'], color='blue', alpha=0.3, label='Volume')
-            axes[1].plot(self.data.index, self.indicators['OBV'], color='purple', label='OBV')
-            axes[1].set_title('Volume and On-Balance Volume')
-            axes[1].legend()
-            axes[1].grid(True)
+            # # Volume and OBV
+            # axes[1].bar(self.data.index, self.data['Volume'], color='blue', alpha=0.3, label='Volume')
+            # axes[1].plot(self.data.index, self.data['OBV'], color='purple', label='OBV')
+            # axes[1].set_title('Volume and On-Balance Volume')
+            # axes[1].legend()
+            # axes[1].grid(True)
             
             # RSI
-            axes[2].plot(self.data.index, self.indicators['RSI_14'], label='RSI 14', color='purple')
+            axes[2].plot(self.data.index, self.data['RSI_14'], label='RSI 14', color='purple')
             axes[2].axhline(70, color='red', linestyle='--', alpha=0.5, label='Overbought')
             axes[2].axhline(30, color='green', linestyle='--', alpha=0.5, label='Oversold')
             axes[2].set_title('Relative Strength Index (RSI)')
@@ -181,16 +180,16 @@ class StockPriceAnalyzer:
             axes[2].grid(True)
             
             # MACD
-            axes[3].plot(self.data.index, self.indicators['MACD'], label='MACD', color='blue')
-            axes[3].plot(self.data.index, self.indicators['MACD_Signal'], label='Signal Line', color='orange')
-            axes[3].bar(self.data.index, self.indicators['MACD_Hist'], label='MACD Histogram', color='gray', alpha=0.5)
+            axes[3].plot(self.data.index, self.data['MACD'], label='MACD', color='blue')
+            axes[3].plot(self.data.index, self.data['MACD_Signal'], label='Signal Line', color='orange')
+            axes[3].bar(self.data.index, self.data['MACD_Hist'], label='MACD Histogram', color='gray', alpha=0.5)
             axes[3].set_title('MACD')
             axes[3].legend()
             axes[3].grid(True)
             
             # Stochastic Oscillator
-            axes[4].plot(self.data.index, self.indicators['Stoch_Slowk'], label='Stoch %K', color='blue')
-            axes[4].plot(self.data.index, self.indicators['Stoch_Slowd'], label='Stoch %D', color='orange')
+            axes[4].plot(self.data.index, self.data['Stoch_Slowk'], label='Stoch %K', color='blue')
+            axes[4].plot(self.data.index, self.data['Stoch_Slowd'], label='Stoch %D', color='orange')
             axes[4].axhline(80, color='red', linestyle='--', alpha=0.5)
             axes[4].axhline(20, color='green', linestyle='--', alpha=0.5)
             axes[4].set_title('Stochastic Oscillator')
@@ -199,8 +198,9 @@ class StockPriceAnalyzer:
             axes[4].grid(True)
             
             plt.tight_layout()
-            plt.savefig(f'{ticker}_technical_analysis.png')
-            plt.close()
+            plt.show()
+            # plt.savefig(f'{ticker}_technical_analysis.png')
+            
             
             logger.info("Successfully created visualizations")
             return True
@@ -209,30 +209,4 @@ class StockPriceAnalyzer:
             logger.error(f"Error creating visualizations: {str(e)}")
             return False
     
-    def analyze(self, ticker='STOCK'):
-        """
-        Run the complete analysis pipeline.
-        
-        Args:
-            ticker (str): Stock ticker symbol for visualization (default: 'STOCK')
-            
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        try:
-            if self.data is None:
-                logger.error("No data available for analysis")
-                return False
-                
-            if not self.calculate_indicators():
-                return False
-                
-            if not self.visualize_data(ticker):
-                return False
-                
-            logger.info("Analysis completed successfully")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error during analysis: {str(e)}")
-            return False
+    

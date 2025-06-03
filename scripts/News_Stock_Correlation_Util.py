@@ -129,7 +129,18 @@ class NewsStockCorrelationAnalyzer:
                 sentences = nltk.tokenize.wordpunct_tokenize(headline)
                 sentiments = [TextBlob(sentence).sentiment.polarity for sentence in sentences]
                 return sum(sentiments) / len(sentiments) if sentiments else 0.0
+            # Function to categorize polarity scores
+            def categorize_sentiment(score):
+                if isinstance(score, float) or isinstance(score, int):  # Ensure score is numeric
+                    if score >= 0.05:
+                        return 'positive'
+                    elif score <= -0.05:
+                        return 'negative'
+                    else:
+                        return 'neutral'
+                return 'neutral'  # Handle non-numeric values
             data['Sentiment'] = data['headline'].apply(get_sentiment)
+            data['sentiment_label'] = data['Sentiment'].apply(categorize_sentiment)
             return data
         except Exception as e:
             print(f"Error calculating sentiment: {str(e)}")

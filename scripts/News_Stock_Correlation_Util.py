@@ -6,6 +6,8 @@ import logging as logger
 from scipy.stats import pearsonr
 import glob
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Configure NLTK to use local punkt tokenizer
 nltk.data.path.append('../data')
@@ -19,8 +21,11 @@ except LookupError:
     exit(1)
 
 class NewsStockCorrelationAnalyzer:
-    def __init__(self):
+    """
+        News Stock correlation analyzer class to calculate sentiments, align news and stocks datasets 
         
+    """
+    def __init__(self):
         pass
     
     def load_news_data(self, file_path=None):
@@ -216,3 +221,21 @@ class NewsStockCorrelationAnalyzer:
         except Exception as e:
             print(f"Error in correlation analysis: {str(e)}")
             return None, None, None
+    
+    def plot_bar(self, data):
+        # Calculate percentages
+        sentiment_percentages = data['l_sentiment'].value_counts(normalize=True) * 100
+        percentage_df = pd.DataFrame({
+            'Sentiment': sentiment_percentages.index,
+            'Percentage': sentiment_percentages.values
+        })
+        print(percentage_df)
+        # Create bar plot
+        plt.figure(figsize=(8, 6))
+        sns.barplot(data=percentage_df, x='Sentiment', y='Percentage',
+                    palette={'positive': '#4CAF50', 'neutral': '#FFC107', 'negative': '#F44336'})
+        plt.title('Percentage of Sentiment Categories')
+        plt.xlabel('Sentiment')
+        plt.ylabel('Percentage (%)')
+        plt.grid(True)
+        plt.show()
